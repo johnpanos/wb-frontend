@@ -15,6 +15,11 @@
         <el-button @click.end="createLocation" type="primary">Create</el-button>
       </span>
     </el-dialog>
+    <el-row type="flex" :gutter="10">
+      <el-col :offset="22" :span="2">
+        <el-button style="width: 100%;" @click.end="createDialogVisible = true" type="primary" icon="el-icon-edit"></el-button>
+      </el-col>
+    </el-row>
     <el-table
         :data="locations"
         border
