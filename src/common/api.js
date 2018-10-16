@@ -3,7 +3,7 @@ import axios from 'axios'
 import VueAxios from 'vue-axios'
 import store from '../store'
 
-const baseURL = 'http://192.168.7.153:8080'
+const baseURL = 'https://mywb.vcs.net'
 
 const ApiService = {
   init () {
@@ -87,7 +87,7 @@ export default ApiService
 export const AuthService = {
   login(email, password) {
     return axios
-            .post('http://192.168.7.153:8080/auth/generate-token', {
+            .post('https://mywb.vcs.net/auth/generate-token', {
               email: email,
               password: password
             });
@@ -102,7 +102,6 @@ export const InventoryService = {
     return ApiService.get('/inventory/location')
   },
   createLocation(name) {
-    console.log(name);
     return ApiService.post('/inventory/location/', { name: name });
   },
   getPartById(id) {

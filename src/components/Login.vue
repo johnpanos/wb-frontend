@@ -40,8 +40,6 @@ export default {
     login() {
       this.error = '';
       AuthService.login(this.form.email, this.form.password).then(response => {
-        console.log(response);
-        console.log(response.data.token);
         this.$store.dispatch('authentication/updateTokenAndSave', response.data.token);
         this.$message({
           message: 'Authentication Successful',

@@ -7,7 +7,6 @@ export default {
   },
   mutations: {
     updateToken(state, token) {
-      console.log("aye:" + token)
       state.token = token;
       ApiService.setHeader();
     }
@@ -15,11 +14,11 @@ export default {
   actions: {
     updateTokenAndSave({ commit }, token) {
       localStorage.setItem('token', token);
-      this.commit('authentication/updateToken', token);
+      commit('updateToken', token);
     },
     logout({ commit }) {
       localStorage.setItem('token', null);
-      this.commit('authentication/updateToken', null);
+      commit('updateToken', null);
     }
   }
 }

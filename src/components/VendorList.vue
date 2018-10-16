@@ -3,7 +3,8 @@
     <el-table
         :data="vendors"
         border
-        style="width: 100%; margin-top: 20px;">
+        style="width: 100%; margin-top: 20px;"
+        empty-text="No Vendors Found">
       <el-table-column
         prop="id"
         label="ID"

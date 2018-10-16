@@ -23,7 +23,8 @@
     <el-table
         :data="locations"
         border
-        style="width: 100%; margin-top: 20px;">
+        style="width: 100%; margin-top: 20px;"
+        empty-text="No Locations Found">
       <el-table-column
         prop="id"
         label="ID"
@@ -60,7 +61,7 @@ export default {
         this.errorText = 'Location name cannot have spaces!';
         return;
       }
-      InventoryService.createLocation(this.locationName).then(response => {
+      InventoryService.createLocation(this.locationName).then(() => {
         this.refreshLocations();
         this.locationName = '';
         this.errorText = '';

@@ -80,7 +80,7 @@ export default {
       InventoryService.getPartById(this.partId).then(response => {
         this.part = response.data;
         this.loading = false;
-      }).catch(response => {
+      }).catch(() => {
         this.$message({
           showClose: true,
           message: 'No part was found with ID specified',
@@ -88,7 +88,7 @@ export default {
           duration: 10000
         });
         this.$router.push('/inventory');
-      });;
+      });
     },
     getLocations() {
       InventoryService.getLocations().then(response => {
@@ -115,9 +115,9 @@ export default {
             });
           });         
         });
-      }).catch(response => {
-        console.log(response);
-        this.$message.error('There was an error updating the part');
+      }).catch(() => {
+        this.$message.error('There was an error updating the part: ' + this.part.name);
+        this.getPart();
       });
     }
   }

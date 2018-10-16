@@ -64,9 +64,10 @@
       <p>Location: {{ locationInfo.location.name }}</p>
       <p>Sublocation: {{ locationInfo.sublocation }}</p>
     </div>
+      <p style="color: red;">{{ errorText }}</p>
     <div>
-    <el-button v-if="step > 0" @click="previous" type="danger">Previous</el-button>
-    <el-button style="margin-top: 12px;" @click="next" type="success">Next</el-button>
+      <el-button v-if="step > 0" @click="previous" type="danger">Previous</el-button>
+      <el-button style="margin-top: 12px;" @click="next" type="success">Next</el-button>
     </div>
   </el-container>
 </template>
@@ -90,13 +91,54 @@ export default {
       locationInfo: {
         location: null,
         sublocation: ''
-      }
+      },
+      errorText: ''
+    }
+  },
+  computed: {
+    partName() {
+      return this.partInfo.name;
+    },
+    nomenclature() {
+      return this.partInfo.nomenclature;
+    }
+  },
+  watch: {
+    partName(newValue, oldValue) {
+      this.partInfo.name = newValue.toUpperCase().replace('”', '"');
+    },
+    nomenclature(newValue, oldValue) {
+      this.partInfo.nomenclature = newValue.toUpperCase().replace(' ', '_');
     }
   },
   methods: {
     next() {
-      console.log("STEP: " + this.step);
-      if (this.step++ > 2) this.createPart();
+      const { step } = this;
+      this.errorText = '';
+
+      switch(step) {
+        case 0:
+          if (this.partInfo.name.length < 5) {
+            this.errorText = 'Name needs to be at least 5 characters';
+          }
+          if (this.partInfo.nomenclature.length < 5) {
+            this.errorText = 'Nomeclature needs to be at least 5 characters';
+          }
+          break;
+        case 1:
+          this.vendorInfo.map(info => {
+            if (info.partNumber.length < 1) {
+              this.errorText = 'Part Number cannot be empty';
+            }
+          });
+          break;
+      }
+
+      if (this.errorText.length === 0) {
+        this.step++;
+      }
+
+      //if (this.step++ > 2) this.createPart();
     },
     previous() {
       if (this.step > 0)
@@ -116,10 +158,9 @@ export default {
         ...this.partInfo,
         ...this.locationInfo
       }).then(response => {
-        console.log(response);
         this.vendorInfo.map(vendorInformation => {
-          InventoryService.addVendorInformationToPart(response.data.id, vendorInformation.partNumber, vendorInformation.vendor.id).then(response => {
-            this.$router.push('/inventory/parts');
+          InventoryService.addVendorInformationToPart(response.data.id, vendorInformation.partNumber, vendorInformation.vendor.id).then(() => {
+            this.$router.push('/inventory');
           });
         });
       });

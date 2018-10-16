@@ -36,7 +36,8 @@
         style="width: 100%; margin-top: 20px;"
         :cell-style="generateCellStyle"
         @selection-change="handleSelectionChange"
-        @cell-click="onCellClick">
+        @cell-click="onCellClick"
+        empty-text="No Parts Found">
       <el-table-column
         type="selection">
       </el-table-column>
@@ -83,7 +84,6 @@
 
 <script>
 import { mapState } from 'vuex';
-import axios from 'axios';
 import { InventoryService } from '../common/api.js';
 export default {
   data() {
@@ -121,8 +121,7 @@ export default {
       this.quantityDialog = false;
     },
     updatePart(part) {
-      console.log(this);
-      InventoryService.updatePart(part).then(response => {
+      InventoryService.updatePart(part).then(() => {
         this.refreshParts();
       });
     },
@@ -141,11 +140,9 @@ export default {
       }
     },
     deleteParts() {
-      console.log(this.selectedParts);
+      this.partsLoading = true;
       this.selectedParts.map(part => {
-        console.log(part);
-        InventoryService.deletePart(part).then((res) => {
-          console.log(res);
+        InventoryService.deletePart(part).then(() => {
           this.refreshParts();
         });
       });
@@ -164,7 +161,6 @@ export default {
       this.$router.push('/inventory/part/' + row.id);
     },
     generateCellStyle(obj) {
-      console.log(obj.row)
       if (obj.row.minQuantity >= obj.row.quantity) {
         return "background-color: rgba(255, 0, 0, 0.25);"
       } else {
@@ -184,8 +180,6 @@ export default {
     }
   },
   mounted() {
-    console.log(localStorage.getItem('token') == 'null')
-    console.log(this.token)
     this.refreshParts();
   }
 }
