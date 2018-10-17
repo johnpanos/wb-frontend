@@ -18,15 +18,19 @@
         </div>
       </el-col>
       <el-col :span="4">
-        <el-dropdown style="width: 100%" trigger="click" placement="bottom" @command="handleCommand">
-          <el-button round style="width: 100%">Actions<i class="el-icon-arrow-down el-icon--right"></i></el-button>
-          <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item command="delete">Delete Parts</el-dropdown-item>
-          </el-dropdown-menu>
-        </el-dropdown>
+        <show-if-has-role :roles="['ADMIN', 'MENTOR']">
+          <el-dropdown style="width: 100%" trigger="click" placement="bottom" @command="handleCommand">
+            <el-button round style="width: 100%">Actions<i class="el-icon-arrow-down el-icon--right"></i></el-button>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item command="delete">Delete Part(s)</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </show-if-has-role>
       </el-col>
       <el-col :span="2">
-        <el-button style="width: 100%;" @click.end="$router.push('/inventory/parts/create')" type="primary" icon="el-icon-edit"></el-button>
+        <show-if-has-role :roles="['ADMIN', 'MENTOR']">
+          <el-button style="width: 100%;" @click.end="$router.push('/inventory/parts/create')" type="primary" icon="el-icon-edit"></el-button>
+        </show-if-has-role>
       </el-col>
     </el-row>
     <el-table
@@ -85,7 +89,11 @@
 <script>
 import { mapState } from 'vuex';
 import { InventoryService } from '../common/api.js';
+import ShowIfHasRole from './permissions/ShowIfHasRole';
 export default {
+  components: {
+    ShowIfHasRole
+  },
   data() {
     return {
       search: '',

@@ -1,5 +1,5 @@
 <template>
-  <el-container direction="vertical">
+  <el-container direction="vertical" v-loading="loading">
     <h1>Create Part</h1>
     <el-steps :active="step" finish-status="success" :align-center="true">
       <el-step title="Part"></el-step>
@@ -23,7 +23,7 @@
     <el-form v-if="step == 1" style="margin-top: 20px;" ref="form" label-width="120px">
       <el-container v-for="(info, i) in vendorInfo" v-bind:key="i">
         <el-form-item label="Vendor">
-          <el-select v-model="vendorInfo[i].vendor" placeholder="Select">
+          <el-select v-model="info.vendor" value-key="id" placeholder="Select">
             <el-option
               v-for="vendor in vendors"
               :key="vendor.id"
@@ -78,6 +78,7 @@ export default {
   name: 'PartCreate',
   data() {
     return {
+      loading: false,
       step: 0,
       vendors: [],
       locations: [],
@@ -132,13 +133,24 @@ export default {
             }
           });
           break;
+        case 2:
+          if (this.locationInfo.location == null) {
+            this.errorText = 'Location cannot be empty';
+          }
+          if (this.locationInfo.sublocation.length < 1) {
+            this.errorText = 'Sublocation cannot be empty';
+          }
+          break;
+        case 3:
+          if (this.errorText.length === 0) {
+            this.createPart();
+          }
+          break;
       }
 
       if (this.errorText.length === 0) {
         this.step++;
       }
-
-      //if (this.step++ > 2) this.createPart();
     },
     previous() {
       if (this.step > 0)
@@ -154,6 +166,7 @@ export default {
       this.vendorInfo.splice(i, 1);
     },
     createPart() {
+      this.loading = true;
       InventoryService.createPart({
         ...this.partInfo,
         ...this.locationInfo

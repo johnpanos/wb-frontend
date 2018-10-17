@@ -4,6 +4,7 @@ import VueAxios from 'vue-axios'
 import store from '../store'
 
 const baseURL = 'https://mywb.vcs.net'
+//const baseURL = 'http://localhost:8080';
 
 const ApiService = {
   init () {
@@ -82,21 +83,33 @@ const ApiService = {
   }
 }
 
-export default ApiService
+export default ApiService;
 
 export const AuthService = {
   login(email, password) {
     return axios
-            .post('https://mywb.vcs.net/auth/generate-token', {
+            .post(baseURL + '/auth/generate-token', {
               email: email,
               password: password
             });
+  },
+  getUserInfo() {
+    return ApiService.get('hr/user/info');
   }
 }
 
 export const InventoryService = {
+  createVendor(vendor) {
+    return ApiService.post('/inventory/vendor/', vendor);
+  },
   getVendors() {
     return ApiService.get('inventory/vendor');
+  },
+  updateVendor(id, vendor) {
+    return ApiService.put(`/inventory/vendor/${id}/`, vendor);
+  },
+  deleteVendor(id) {
+    return ApiService.delete(`/inventory/vendor/${id}/`);
   },
   getLocations() {
     return ApiService.get('/inventory/location')
@@ -140,6 +153,9 @@ export const InventoryService = {
   },
   updatePartVendorInformation(vendorInformationId, vendorInfo) {
     return ApiService.put('inventory/part/vendor-info/' + vendorInformationId, vendorInfo);
+  },
+  deletePartVendorInformation(id) {
+    return ApiService.delete('inventory/part/vendor-info/' + id);
   },
   deletePart(part) {
     return ApiService.delete(`inventory/part/${part.id}/`, part);

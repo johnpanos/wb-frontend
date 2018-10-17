@@ -2,11 +2,13 @@
   <div>
     <el-row type="flex" justify="space-between" align="middle">
       <h1 v-if="!loading">{{ part.name }}</h1>
-      <div>
-        <el-button v-if="!editing && !loading" @click="editing = true" type="primary">Edit</el-button>
-        <el-button v-if="editing" @click="onSave" type="primary">Save</el-button>
-        <el-button v-if="editing" @click="onCancel" type="danger">Cancel</el-button>
-      </div>
+      <show-if-has-role :roles="['ADMIN', 'MENTOR']">
+        <div>
+          <el-button v-if="!editing && !loading" @click="editing = true" type="primary">Edit</el-button>
+          <el-button v-if="editing" @click="onSave" type="primary">Save</el-button>
+          <el-button v-if="editing" @click="onCancel" type="danger">Cancel</el-button>
+        </div>
+      </show-if-has-role>
     </el-row>
     <el-container v-loading="loading" direction="vertical">
       <template v-if="part != null">
@@ -31,17 +33,28 @@
           </el-col>
           <el-col>
             <h3>Quantity</h3>
-            <text-label-edit v-model="part.quantity" />
+            <p>{{ part.quantity }}</p>
           </el-col>
           <el-col>
             <h3>Minimum Quantity</h3>
-            <text-label-edit v-model="part.minQuantity" />
+            <p v-if="!editing">{{ part.minQuantity }}</p>
+            <el-input-number v-if="editing" v-model="part.minQuantity" :min="1" :max="10000"></el-input-number>
           </el-col>
         </el-row>
         <el-row type="flex">
           <el-col>
             <h2>Vendor Information</h2>
-            <p v-for="vendorInfo in part.vendorInformation" v-bind:key="vendorInfo.id"><select-label-edit v-model="vendorInfo.vendor.id" :label="vendorInfo.vendor.name" :editing="editing" :options="vendors" />: <text-label-edit v-model="vendorInfo.partNumber" :editing="editing" :inline="true" /></p>
+            <PartVendorInformationControl
+              v-if="editing"
+              :addVendorInfo="addVendorInfo"
+              :deleteVendorInfo="deleteVendorInfo"
+              :vendorInfo="part.vendorInformation"
+              :vendors="vendors" />
+            <p
+              v-if="!editing"
+              v-for="vendorInfo in part.vendorInformation"
+              v-bind:key="vendorInfo.id"
+            ><span style="font-weight:bold;">{{ vendorInfo.vendor.name }}:</span> {{ vendorInfo.partNumber }}</p>
           </el-col>
         </el-row>
       </template>
@@ -53,11 +66,15 @@
 import { InventoryService } from '../common/api.js';
 import TextLabelEdit from './TextLabelEdit';
 import SelectLabelEdit from './SelectLabelEdit';
+import PartVendorInformationControl from './form/PartVendorInformationControl';
+import ShowIfHasRole from './permissions/ShowIfHasRole';
 export default {
   name: 'PartView',
   components: {
     TextLabelEdit,
-    SelectLabelEdit
+    SelectLabelEdit,
+    PartVendorInformationControl,
+    ShowIfHasRole
   },
   data() {
     return {
@@ -65,7 +82,24 @@ export default {
       part: null,
       editing: false,
       locations: [],
-      vendors: []
+      vendors: [],
+      requestDeleteVendorInfoIds: []
+    }
+  },
+  computed: {
+    partName() {
+      return this.part.name || '';
+    },
+    nomenclature() {
+      return this.part.nomenclature || '';
+    }
+  },
+  watch: {
+    partName(newValue, oldValue) {
+      this.part.name = newValue.toUpperCase().replace('”', '"');
+    },
+    nomenclature(newValue, oldValue) {
+      this.part.nomenclature = newValue.toUpperCase().replace(' ', '_');
     }
   },
   props: ['partId'],
@@ -100,6 +134,19 @@ export default {
         this.vendors = response.data;
       });
     },
+    addVendorInfo() {
+      this.part.vendorInformation.push({
+        id: null,
+        vendor: this.vendors[0],
+        partNumber: ''
+      });
+    },
+    deleteVendorInfo(i) {
+      if (this.part.vendorInformation[i].id != null) {
+        this.requestDeleteVendorInfoIds.push(this.part.vendorInformation[i].id);
+      }
+      this.part.vendorInformation.splice(i, 1);
+    },
     onCancel() {
       this.editing = false;
       this.getPart();
@@ -107,13 +154,24 @@ export default {
     onSave() {
       this.editing = false;
       this.loading = true;
+      InventoryService.updatePartLocation(this.part.id, this.part.location.id).catch(() => {
+        this.$message.error('There was an error updating the part location: ' + this.part.name);
+        this.getPart();
+      });
+      this.requestDeleteVendorInfoIds.map(id => {
+        InventoryService.deletePartVendorInformation(id);
+      });
       InventoryService.updatePart(this.part).then(() => {
-        InventoryService.updatePartLocation(this.part.id, this.part.location.id).then(() => {
-          this.part.vendorInformation.map(vendorInfo => {
+        this.part.vendorInformation.map(vendorInfo => {
+          if (vendorInfo.id != null) {
             InventoryService.updatePartVendorInformation(vendorInfo.id, vendorInfo).then(() => {
               this.getPart();
             });
-          });         
+          } else {
+            InventoryService.addVendorInformationToPart(this.part.id, vendorInfo.partNumber, vendorInfo.vendor.id).then(() => {
+              this.getPart();
+            });
+          }
         });
       }).catch(() => {
         this.$message.error('There was an error updating the part: ' + this.part.name);

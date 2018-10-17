@@ -31,6 +31,7 @@
 <script>
 import Login from './Login.vue';
 import { mapState } from 'vuex';
+import { AuthService } from '../common/api';
 export default {
   name: 'Home',
   props: {
@@ -49,6 +50,7 @@ export default {
     }
   },
   mounted() {
+    this.$store.dispatch('authentication/updateUser');
   }
 }
 </script>

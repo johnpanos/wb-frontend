@@ -10,6 +10,7 @@ import PartCreate from './components/PartCreate.vue';
 import Inventory from './components/Inventory.vue';
 import PartView from './components/PartView.vue';
 import ApiService from './common/api';
+import { PermissionService } from './common/permissions';
 import icons from './plugins/icons';
 
 Vue.component(VueQrcode.name, VueQrcode);
@@ -24,7 +25,10 @@ ApiService.init();
 const routes = [
   { path: '/login', component: Login },
   { path: '/inventory', component: Inventory },
-  { path: '/inventory/parts/create', component: PartCreate },
+  { path: '/inventory/parts/create', component: PartCreate, meta: {
+      allowedRoles: ['ADMIN', 'MENTOR']
+    }
+  },
   { path: '/inventory/part/:partId', component: PartView, props: true }
 ];
 
@@ -46,7 +50,23 @@ router.beforeEach((to, from, next) => {
       params: { nextUrl: to.fullPath }
     });
   } else {
-    next();
+    const allowedRoles = to.matched.some(record => record.meta.allowedRoles);
+    const user = store.state.authentication.user;
+
+    if (allowedRoles && user != null) {
+      console.log(to.meta.allowedRoles);
+      console.log(store.state.authentication.user);
+      if (PermissionService.hasRole(user, to.meta.allowedRoles)) {
+        next();
+      } else {
+        next({
+          path: '/',
+          params: { nextUrl: to.fullPath }
+        });
+      }
+    } else {
+      next();
+    }
   }
 });
 
