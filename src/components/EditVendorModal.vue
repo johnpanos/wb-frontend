@@ -83,6 +83,9 @@ export default {
     resetForm(formName) {
       this.$refs.form.resetFields();
     }
+  },
+  mounted() {
+    this.resetForm();
   }
 }
 </script>
