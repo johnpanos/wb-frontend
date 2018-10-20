@@ -5,7 +5,7 @@
       <el-col :offset="20" :span="4">
         <show-if-has-role :roles="['ADMIN', 'MENTOR']">
           <el-dropdown style="width: 100%" trigger="click" placement="bottom" @command="handleCommand">
-            <el-button round style="width: 100%">Actions<i class="el-icon-arrow-down el-icon--right"></i></el-button>
+            <el-button round :disabled="selectedVendors.length < 1" style="width: 100%">Actions<i class="el-icon-arrow-down el-icon--right"></i></el-button>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="delete">Delete Vendor(s)</el-dropdown-item>
             </el-dropdown-menu>
@@ -68,17 +68,20 @@
 <script>
 import { InventoryService } from '../common/api.js';
 import EditVendorModal from './EditVendorModal';
+import ShowIfHasRole from './permissions/ShowIfHasRole';
 export default {
   name: 'VendorList',
   components: {
-    EditVendorModal
+    EditVendorModal,
+    ShowIfHasRole
   },
   data() {
     return {
       loading: false,
       vendors: [],
       editModalVisible: false,
-      selectedVendor: null
+      selectedVendor: null,
+      selectedVendors: []
     }
   },
   methods: {
@@ -104,7 +107,6 @@ export default {
       this.refreshVendors();
     },
     onCellClick(row) {
-      console.log(row)
       this.selectedVendor = row;
       this.editModalVisible = true;
     },
@@ -114,9 +116,12 @@ export default {
     handleCommand(command) {
       switch(command) {
         case 'delete':
-          this.selectedVendors.map(vendor => {
-            InventoryService.deleteVendor(vendor.id).then(this.refreshVendors);
-          });
+          this.$confirm(`Are you sure you want to delete ${this.selectedVendors.length} vendor(s)?`)
+            .then(_ => {
+              this.selectedVendors.map(vendor => {
+                InventoryService.deleteVendor(vendor.id).then(this.refreshVendors);
+              });
+            });
           break;
       }
     },

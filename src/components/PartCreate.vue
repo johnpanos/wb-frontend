@@ -171,6 +171,9 @@ export default {
         ...this.partInfo,
         ...this.locationInfo
       }).then(response => {
+        if (this.vendorInfo.length === 0) {
+          this.$router.push('/inventory');
+        }
         this.vendorInfo.map(vendorInformation => {
           InventoryService.addVendorInformationToPart(response.data.id, vendorInformation.partNumber, vendorInformation.vendor.id).then(() => {
             this.$router.push('/inventory');

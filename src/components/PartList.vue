@@ -1,16 +1,6 @@
 <template>
   <el-container direction="vertical">
-    <el-dialog
-      :title="quantityPart.name"
-      :visible.sync="quantityDialog"
-      width="30%">
-      <span>Current Quantity: {{ quantityPart.quantity }}</span><br/>
-      <el-input-number v-model="newQuantity" :min="0" :max="1000"></el-input-number>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="quantityDialog = false">Cancel</el-button>
-        <el-button type="primary" @click="updateQuantityForPart">Update</el-button>
-      </span>
-    </el-dialog>
+    <!-- Search/Toolbar -->
     <el-row type="flex" :gutter="10">
       <el-col :span="18">
         <div>
@@ -20,7 +10,7 @@
       <el-col :span="4">
         <show-if-has-role :roles="['ADMIN', 'MENTOR']">
           <el-dropdown style="width: 100%" trigger="click" placement="bottom" @command="handleCommand">
-            <el-button round style="width: 100%">Actions<i class="el-icon-arrow-down el-icon--right"></i></el-button>
+            <el-button round :disabled="selectedParts.length < 1" style="width: 100%">Actions<i class="el-icon-arrow-down el-icon--right"></i></el-button>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="delete">Delete Part(s)</el-dropdown-item>
             </el-dropdown-menu>
@@ -33,6 +23,7 @@
         </show-if-has-role>
       </el-col>
     </el-row>
+    <!-- Parts Table Start -->
     <el-table
         v-loading="partsLoading"
         :data="parts.content"
@@ -87,7 +78,6 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
 import { InventoryService } from '../common/api.js';
 import ShowIfHasRole from './permissions/ShowIfHasRole';
 export default {
@@ -113,26 +103,9 @@ export default {
       partsLoading: true
     }
   },
-  computed: mapState({
-    // arrow functions can make the code very succinct!
-    token: state => state.authentication.token,
-  }),
   methods: {
-    onQuantityPressed(part) {
-      this.quantityPart = part;
-      this.newQuantity = part.quantity;
-      this.quantityDialog = true;
-    },
-    updateQuantityForPart() {
-      this.quantityPart.quantity = this.newQuantity;
-      this.updatePart(this.quantityPart);
-      this.quantityDialog = false;
-    },
-    updatePart(part) {
-      InventoryService.updatePart(part).then(() => {
-        this.refreshParts();
-      });
-    },
+    // If searching, then request the search endpoint,
+    // however, if were just viewing, request the normal one
     refreshParts() {
       this.partsLoading = true;
       if (this.search.length > 0) {
@@ -148,12 +121,14 @@ export default {
       }
     },
     deleteParts() {
-      this.partsLoading = true;
-      this.selectedParts.map(part => {
-        InventoryService.deletePart(part).then(() => {
-          this.refreshParts();
-        });
-      });
+      this.$confirm('Are you sure you want to delete those parts?')
+        .then(_ => {
+          this.partsLoading = true;
+          InventoryService.deleteParts(this.selectedParts).then(() => {
+            this.refreshParts();
+          });
+        })
+        .catch(_ => {});
     },
     handleSelectionChange(val) {
       this.selectedParts = val;
@@ -177,12 +152,15 @@ export default {
     }
   },
   watch: {
+    // Watch the search, and if anything changes
+    // refresh the part list with the search
     search() {
       if (this.search.length == 0) {
         this.currentPage = 1;
       }
       this.refreshParts();
     },
+    // Whenever the current page changes, have the 
     currentPage() {
       this.refreshParts();
     }

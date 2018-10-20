@@ -1,7 +1,7 @@
 import Vue from 'vue'
 
 // or import all icons if you don't care about bundle size
-import 'vue-awesome/icons'
+import 'vue-awesome/icons/archive'
 
 /* Register component with one of 2 methods */
 

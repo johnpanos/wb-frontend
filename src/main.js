@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import App from './App.vue'
 import ElementUI from 'element-ui';
+import lang from 'element-ui/lib/locale/lang/en';
+import locale from 'element-ui/lib/locale';
 import VueRouter from 'vue-router'
 import 'element-ui/lib/theme-chalk/index.css';
 import VueQrcode from '@xkeshi/vue-qrcode';
@@ -9,6 +11,7 @@ import Login from './components/Login.vue';
 import PartCreate from './components/PartCreate.vue';
 import Inventory from './components/Inventory.vue';
 import PartView from './components/PartView.vue';
+import AuthenticationSuccessful from './components/AuthenticationSuccessful.vue';
 import ApiService from './common/api';
 import { PermissionService } from './common/permissions';
 import icons from './plugins/icons';
@@ -17,6 +20,7 @@ Vue.component(VueQrcode.name, VueQrcode);
 
 Vue.config.productionTip = false
 
+locale.use(lang);
 Vue.use(ElementUI);
 Vue.use(VueRouter);
 
@@ -29,7 +33,8 @@ const routes = [
       allowedRoles: ['ADMIN', 'MENTOR']
     }
   },
-  { path: '/inventory/part/:partId', component: PartView, props: true }
+  { path: '/inventory/part/:partId', component: PartView, props: true },
+  { path: '/authentication-successful', component: AuthenticationSuccessful }
 ];
 
 const router = new VueRouter({
@@ -54,8 +59,6 @@ router.beforeEach((to, from, next) => {
     const user = store.state.authentication.user;
 
     if (allowedRoles && user != null) {
-      console.log(to.meta.allowedRoles);
-      console.log(store.state.authentication.user);
       if (PermissionService.hasRole(user, to.meta.allowedRoles)) {
         next();
       } else {

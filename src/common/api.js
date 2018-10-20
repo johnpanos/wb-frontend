@@ -3,8 +3,8 @@ import axios from 'axios'
 import VueAxios from 'vue-axios'
 import store from '../store'
 
-const baseURL = 'https://mywb.vcs.net'
-//const baseURL = 'http://localhost:8080';
+//const baseURL = 'https://mywb.vcs.net'
+const baseURL = 'http://localhost:8080';
 
 const ApiService = {
   init () {
@@ -71,9 +71,9 @@ const ApiService = {
       })
   },
 
-  delete (resource) {
+  delete (resource, params) {
     return Vue.axios
-      .delete(resource)
+      .delete(resource, params)
       .catch((error) => {
         if (error.response.data.status == 401) {
           store.dispatch('authentication/logout');
@@ -142,6 +142,13 @@ export const InventoryService = {
   createPart(part) {
     return ApiService.post('inventory/part/', part);
   },
+  deletePart(part) {
+    return ApiService.delete(`inventory/part/${part.id}/`, part);
+  },
+  deleteParts(parts) {
+    parts = parts.map(part => part.id);
+    return ApiService.delete('inventory/part/', { data: parts });
+  },
   addVendorInformationToPart(id, partNumber, vendorId) {
     return ApiService.post(`inventory/part/vendor-info/${id}/?vendor=${vendorId}`, { partNumber: partNumber });
   },
@@ -156,8 +163,5 @@ export const InventoryService = {
   },
   deletePartVendorInformation(id) {
     return ApiService.delete('inventory/part/vendor-info/' + id);
-  },
-  deletePart(part) {
-    return ApiService.delete(`inventory/part/${part.id}/`, part);
   }
 }

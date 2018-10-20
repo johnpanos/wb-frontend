@@ -15,11 +15,11 @@
         <el-row type="flex">
           <el-col>
             <h3>Name</h3>
-            <text-label-edit v-model="part.name" :editing="editing" />
+            <text-label-edit v-model="partName" :editing="editing" />
           </el-col>
           <el-col>
             <h3>Nomenclature</h3>
-            <text-label-edit v-model="part.nomenclature" :editing="editing" />
+            <text-label-edit v-model="nomenclature" :editing="editing" />
           </el-col>
           <el-col>
             <h3>QR Code</h3>
@@ -88,9 +88,15 @@ export default {
   },
   computed: {
     partName() {
+      if (!this.part) {
+        return '';
+      }
       return this.part.name || '';
     },
     nomenclature() {
+      if (!this.part) {
+        return '';
+      }
       return this.part.nomenclature || '';
     }
   },

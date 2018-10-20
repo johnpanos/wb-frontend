@@ -2,7 +2,9 @@
   <el-dialog
     title="Vendor"
     :visible="visible"
-    width="45%">
+    :before-close="onClose"
+    width="45%"
+    v-if="vendor != null">
     <el-form ref="form" :rules="rules" :model="vendor">
       <el-form-item label="Name" prop="name">
         <el-input v-model="vendor.name"></el-input>
@@ -83,9 +85,6 @@ export default {
     resetForm(formName) {
       this.$refs.form.resetFields();
     }
-  },
-  mounted() {
-    this.resetForm();
   }
 }
 </script>
