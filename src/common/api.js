@@ -3,8 +3,8 @@ import axios from 'axios'
 import VueAxios from 'vue-axios'
 import store from '../store'
 
-//const baseURL = 'https://mywb.vcs.net'
-const baseURL = 'http://localhost:8080';
+const baseURL = 'https://mywb.vcs.net'
+//const baseURL = 'http://localhost:8080';
 
 const ApiService = {
   init () {
@@ -14,8 +14,11 @@ const ApiService = {
   },
 
   setHeader() {
-    if (store.state.authentication.token != null)
-      Vue.axios.defaults.headers.common['Authorization'] = `Bearer ${store.state.authentication.token}`
+    if (store.state.authentication.token != null) {
+      Vue.axios.defaults.headers.common['Authorization'] = `Bearer ${store.state.authentication.token}`;
+    } else {
+      Vue.axios.defaults.headers.common['Authorization'] = '';
+    }
   },
 
   query (resource, params) {
@@ -29,9 +32,9 @@ const ApiService = {
       })
   },
 
-  get (resource, slug = '') {
+  get (resource) {
     return Vue.axios
-      .get(`${resource}/${slug}`)
+      .get(resource)
       .catch((error) => {
         if (error.response.data.status == 401) {
           store.dispatch('authentication/logout');
@@ -41,7 +44,7 @@ const ApiService = {
   },
 
   post (resource, params) {
-    return Vue.axios.post(`${resource}`, params)
+    return Vue.axios.post(resource, params)
       .catch((error) => {
         if (error.response.data.status == 401) {
           store.dispatch('authentication/logout');
@@ -51,7 +54,7 @@ const ApiService = {
   },
 
   update (resource, slug, params) {
-    return Vue.axios.put(`${resource}/${slug}`, params)
+    return Vue.axios.put(resource, params)
       .catch((error) => {
         if (error.response.data.status == 401) {
           store.dispatch('authentication/logout');
@@ -62,7 +65,7 @@ const ApiService = {
 
   put (resource, params) {
     return Vue.axios
-      .put(`${resource}`, params)
+      .put(resource, params)
       .catch((error) => {
         if (error.response.data.status == 401) {
           store.dispatch('authentication/logout');
@@ -88,13 +91,55 @@ export default ApiService;
 export const AuthService = {
   login(email, password) {
     return axios
-            .post(baseURL + '/auth/generate-token', {
+            .post(baseURL + '/auth/generate-token/', {
               email: email,
               password: password
             });
   },
+  logout() {
+    return ApiService.setHeader();
+  },
   getUserInfo() {
-    return ApiService.get('hr/user/info');
+    return ApiService.get('hr/user/info/');
+  }
+}
+
+export const HRService = {
+  getMentors() {
+    return ApiService.get('hr/mentor/');
+  },
+  createMentor(mentor) {
+    return ApiService.post('/hr/mentor/', mentor);
+  },
+  deleteMentor(id) {
+    return ApiService.delete('/hr/mentor/' + id);
+  },
+  getStudents() {
+    return ApiService.get('hr/student/');
+  },
+  createStudent(student) {
+    return ApiService.post('/hr/student/', student);
+  },
+  updateStudent(student) {
+    return ApiService.put('/hr/student/' + student.id, student);
+  },
+  updateStudentRoles(id, roles) {
+    return ApiService.put(`/hr/student/${id}/role/`, roles);
+  },
+  getUser(id) {
+    return ApiService.get('/hr/user/' + id + '/');
+  },
+  changePassword(password) {
+    return ApiService.put('/hr/user/password', { password: password });
+  },
+  updateUser(user) {
+    return ApiService.put('/hr/user/' + user.id + '/', user);
+  },
+  deleteUser(id) {
+    return ApiService.delete(`/hr/user/${id}/`);
+  },
+  getRoles() {
+    return ApiService.get('/hr/role/');
   }
 }
 
@@ -103,7 +148,7 @@ export const InventoryService = {
     return ApiService.post('/inventory/vendor/', vendor);
   },
   getVendors() {
-    return ApiService.get('inventory/vendor');
+    return ApiService.get('inventory/vendor/');
   },
   updateVendor(id, vendor) {
     return ApiService.put(`/inventory/vendor/${id}/`, vendor);
@@ -112,13 +157,19 @@ export const InventoryService = {
     return ApiService.delete(`/inventory/vendor/${id}/`);
   },
   getLocations() {
-    return ApiService.get('/inventory/location')
+    return ApiService.get('/inventory/location/')
   },
   createLocation(name) {
     return ApiService.post('/inventory/location/', { name: name });
   },
+  updateLocation(id, location) {
+    return ApiService.put(`/inventory/location/${id}/`, location);
+  },
+  deleteLocation(id) {
+    return ApiService.delete(`/inventory/location/${id}/`);
+  },
   getPartById(id) {
-    return ApiService.get('inventory/part/' + id);
+    return ApiService.get('inventory/part/' + id + '/');
   },
   getParts(size, page) {
     return ApiService.query('inventory/part/', {
@@ -156,7 +207,7 @@ export const InventoryService = {
     return ApiService.put(`inventory/part/${part.id}/`, part);
   },
   updatePartLocation(partId, locationId) {
-    return ApiService.put(`inventory/part/${partId}/${locationId}`);
+    return ApiService.put(`inventory/part/${partId}/${locationId}/`);
   },
   updatePartVendorInformation(vendorInformationId, vendorInfo) {
     return ApiService.put('inventory/part/vendor-info/' + vendorInformationId, vendorInfo);

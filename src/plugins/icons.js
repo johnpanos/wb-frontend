@@ -1,16 +1,13 @@
 import Vue from 'vue'
 
-// or import all icons if you don't care about bundle size
-import 'vue-awesome/icons/archive'
+// Import only icons we use to save the bundle size
+import 'vue-awesome/icons/archive';
+import 'vue-awesome/icons/users';
 
-/* Register component with one of 2 methods */
+import Icon from 'vue-awesome/components/Icon';
 
-import Icon from 'vue-awesome/components/Icon'
+Vue.component('v-icon', Icon);
 
-// globally (in your main .js file)
-Vue.component('v-icon', Icon)
-
-// or locally (in your component file)
 export default {
   components: {
     'v-icon': Icon

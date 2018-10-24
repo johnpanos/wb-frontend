@@ -2,16 +2,27 @@
   <el-container>
     <el-header style="display: flex; justify-content: space-between; align-items: center;">
       <h1>myWB</h1>
-      <div>
-        <el-button v-if="token != null" @click.end="logout" type="danger" round>Logout</el-button>
+      <div v-if="token != null">
+        <el-button @click.end="passwordDialogVisible = true" type="text">Change Password</el-button>
+        <el-button @click.end="logout" type="danger" round>Logout</el-button>
       </div>
     </el-header>
     <el-container>
-      <el-aside width="150px">
+      <change-password-dialog :visible="passwordDialogVisible" :onClose="() => passwordDialogVisible = false" />
+      <el-aside width="180px">
         <el-row class="tac">
           <el-col :span="24">
-            <el-menu
-              router>
+            <el-menu router>
+                <show-if-has-role :roles="['ADMIN', 'MENTOR']">
+                  <el-submenu index="1">
+                    <template slot="title">
+                      <v-icon name="users" />
+                      <span>HR</span>
+                    </template>
+                    <el-menu-item class="menu-item" index="/hr/mentors">Mentors</el-menu-item>
+                    <el-menu-item class="menu-item" index="/hr/students">Students</el-menu-item>
+                  </el-submenu>
+                </show-if-has-role>
               <el-menu-item index="/inventory"><v-icon name="archive" />Inventory</el-menu-item>
             </el-menu>
           </el-col>
@@ -29,16 +40,22 @@
 </template>
 
 <script>
-import Login from './Login.vue';
 import { mapState } from 'vuex';
-import { AuthService } from '../common/api';
+import Login from '@/components/Login.vue';
+import ShowIfHasRole from '@/components/permissions/ShowIfHasRole';
+import ChangePasswordDialog from '@/components/hr/user/ChangePasswordDialog';
+import { AuthService } from '@/common/api';
 export default {
   name: 'Home',
-  props: {
-    msg: String
-  },
   components: {
-    Login
+    Login,
+    ShowIfHasRole,
+    ChangePasswordDialog
+  },
+  data() {
+    return {
+      passwordDialogVisible: false
+    }
   },
   computed: mapState({
     token: state => state.authentication.token,
@@ -71,5 +88,8 @@ body > .el-container {
 }
 .fa-icon {
   margin-right: 5px;
+}
+.el-submenu .el-menu-item {
+  min-width: 0 !important;
 }
 </style>

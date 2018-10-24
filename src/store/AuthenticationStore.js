@@ -4,7 +4,7 @@ export default {
   namespaced: true,
   state: {
     token: localStorage.getItem('token') == 'null' ? null : localStorage.getItem('token'),
-    user: null
+    user: localStorage.getItem('user') == 'null' ? null : JSON.parse(localStorage.getItem('user'))
   },
   mutations: {
     updateToken(state, token) {
@@ -23,10 +23,13 @@ export default {
     },
     logout({ commit }) {
       localStorage.setItem('token', null);
+      localStorage.setItem('user', null);
+      AuthService.logout();
       commit('updateToken', null);
     },
     updateUser({ commit }) {
       AuthService.getUserInfo().then(user => {
+        localStorage.setItem('user', JSON.stringify(user.data));
         commit('updateUser', user.data);
       });
     }

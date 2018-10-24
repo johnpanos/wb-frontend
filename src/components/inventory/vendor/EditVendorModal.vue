@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import { InventoryService } from '../common/api.js';
+import { InventoryService } from '@/common/api.js';
 export default {
   name: 'EditVendorModal',
   props: ['visible', 'vendor', 'onClose', 'onSave'],

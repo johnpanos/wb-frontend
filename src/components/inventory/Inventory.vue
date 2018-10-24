@@ -17,9 +17,9 @@
 </template>
 
 <script>
-import PartList from './PartList';
-import VendorList from './VendorList';
-import LocationList from './LocationList';
+import PartList from '@/components/inventory/part/PartList';
+import VendorList from '@/components/inventory/vendor/VendorList';
+import LocationList from '@/components/inventory/location/LocationList';
 export default {
   components: {
     PartList,

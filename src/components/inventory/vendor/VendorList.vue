@@ -1,16 +1,14 @@
 <template>
   <el-container direction="vertical">
     <edit-vendor-modal :visible="editModalVisible" :vendor="selectedVendor" :onClose="onEditModalClose" />
-    <el-row type="flex" :gutter="10">
+    <el-row type="flex" :gutter="10" v-permission="['ADMIN', 'MENTOR', 'INV_EDIT']">
       <el-col :offset="20" :span="4">
-        <show-if-has-role :roles="['ADMIN', 'MENTOR']">
-          <el-dropdown style="width: 100%" trigger="click" placement="bottom" @command="handleCommand">
-            <el-button round :disabled="selectedVendors.length < 1" style="width: 100%">Actions<i class="el-icon-arrow-down el-icon--right"></i></el-button>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item command="delete">Delete Vendor(s)</el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
-        </show-if-has-role>
+        <el-dropdown style="width: 100%" trigger="click" placement="bottom" @command="handleCommand">
+          <el-button round :disabled="selectedVendors.length < 1" style="width: 100%">Actions<i class="el-icon-arrow-down el-icon--right"></i></el-button>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item command="delete">Delete Vendor(s)</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
       </el-col>
       <el-col :span="2">
         <el-button style="width: 100%;" @click.end="openCreateModal" type="primary" icon="el-icon-edit"></el-button>
@@ -22,7 +20,6 @@
         border
         style="width: 100%; margin-top: 20px;"
         empty-text="No Vendors Found"
-        @cell-click="onCellClick"
         @selection-change="handleSelectionChange">
       <el-table-column
         type="selection">
@@ -61,16 +58,36 @@
           <a :href="'tel:' + scope.row.phoneNumber">{{ scope.row.phoneNumber }}</a>
         </template>
       </el-table-column>
+      <show-if-has-role :roles="['ADMIN', 'MENTOR', 'INV_EDIT']">
+        <el-table-column
+          fixed="right"
+          label="Operations"
+          width="100">
+          <template slot-scope="scope">
+            <el-button
+              @click.native.prevent="onEdit(scope)"
+              type="text"
+              size="small">
+              Edit
+            </el-button>
+          </template>
+        </el-table-column>
+      </show-if-has-role>
     </el-table>
   </el-container>
 </template>
 
 <script>
-import { InventoryService } from '../common/api.js';
-import EditVendorModal from './EditVendorModal';
-import ShowIfHasRole from './permissions/ShowIfHasRole';
+import { InventoryService } from '@/common/api';
+import { PermissionService } from '@/common/permissions';
+import EditVendorModal from '@/components/inventory/vendor/EditVendorModal';
+import ShowIfHasRole from '@/components/permissions/ShowIfHasRole';
+import permission from '@/directive/permission';
 export default {
   name: 'VendorList',
+  directives: {
+    permission
+  },
   components: {
     EditVendorModal,
     ShowIfHasRole
@@ -106,8 +123,8 @@ export default {
       this.editModalVisible = false;
       this.refreshVendors();
     },
-    onCellClick(row) {
-      this.selectedVendor = row;
+    onEdit(scope) {
+      this.selectedVendor = scope.row;
       this.editModalVisible = true;
     },
     handleSelectionChange(selected) {

@@ -2,28 +2,26 @@
   <div>
     <el-row type="flex" justify="space-between" align="middle">
       <h1 v-if="!loading">{{ part.name }}</h1>
-      <show-if-has-role :roles="['ADMIN', 'MENTOR']">
-        <div>
-          <el-button v-if="!editing && !loading" @click="editing = true" type="primary">Edit</el-button>
-          <el-button v-if="editing" @click="onSave" type="primary">Save</el-button>
-          <el-button v-if="editing" @click="onCancel" type="danger">Cancel</el-button>
-        </div>
-      </show-if-has-role>
+      <div v-permission="['ADMIN', 'MENTOR', 'INV_EDIT']">
+        <el-button v-if="!editing && !loading" @click="editing = true" type="primary">Edit</el-button>
+        <el-button v-if="editing" @click="onSave" type="primary">Save</el-button>
+        <el-button v-if="editing" @click="onCancel" type="danger">Cancel</el-button>
+      </div>
     </el-row>
     <el-container v-loading="loading" direction="vertical">
       <template v-if="part != null">
         <el-row type="flex">
           <el-col>
             <h3>Name</h3>
-            <text-label-edit v-model="partName" :editing="editing" />
+            <text-label-edit v-model="part.name" :editing="editing" />
           </el-col>
           <el-col>
             <h3>Nomenclature</h3>
-            <text-label-edit v-model="nomenclature" :editing="editing" />
+            <text-label-edit v-model="part.nomenclature" :editing="editing" />
           </el-col>
           <el-col>
             <h3>QR Code</h3>
-            <qrcode :value="part.id" :options="{ size: 200 }"></qrcode>
+             <div ref="qrCode"></div>
           </el-col>
         </el-row>
         <el-row type="flex">
@@ -63,23 +61,31 @@
 </template>
 
 <script>
-import { InventoryService } from '../common/api.js';
-import TextLabelEdit from './TextLabelEdit';
-import SelectLabelEdit from './SelectLabelEdit';
-import PartVendorInformationControl from './form/PartVendorInformationControl';
-import ShowIfHasRole from './permissions/ShowIfHasRole';
+import { InventoryService } from '@/common/api.js';
+import TextLabelEdit from '@/components/TextLabelEdit';
+import SelectLabelEdit from '@/components/SelectLabelEdit';
+import PartVendorInformationControl from '@/components/form/PartVendorInformationControl';
+import permission from '@/directive/permission';
+import { setTimeout } from 'timers';
 export default {
   name: 'PartView',
+  directives: {
+    permission
+  },
   components: {
     TextLabelEdit,
     SelectLabelEdit,
-    PartVendorInformationControl,
-    ShowIfHasRole
+    PartVendorInformationControl
   },
   data() {
     return {
       loading: true,
-      part: null,
+      part: {
+        name: '',
+        nomenclature: '',
+        quantity: 0,
+        minQuantity: 1
+      },
       editing: false,
       locations: [],
       vendors: [],
@@ -87,24 +93,31 @@ export default {
     }
   },
   computed: {
+    id() {
+      return this.part.id;
+    },
     partName() {
-      if (!this.part) {
-        return '';
-      }
-      return this.part.name || '';
+      return this.part.name;
     },
     nomenclature() {
-      if (!this.part) {
-        return '';
-      }
-      return this.part.nomenclature || '';
+      return this.part.nomenclature;
     }
   },
   watch: {
-    partName(newValue, oldValue) {
+    id() {
+      setTimeout(() => {
+        new QArt({
+          size: 300,
+          value: this.part.id.toString(),
+          imagePath: '/qrbase.png',
+          filter: 'color'
+        }).make(this.$refs.qrCode);
+      }, 10);
+    },
+    partName(newValue) {
       this.part.name = newValue.toUpperCase().replace('”', '"');
     },
-    nomenclature(newValue, oldValue) {
+    nomenclature(newValue) {
       this.part.nomenclature = newValue.toUpperCase().replace(' ', '_');
     }
   },

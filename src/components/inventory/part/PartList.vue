@@ -2,34 +2,30 @@
   <el-container direction="vertical">
     <!-- Search/Toolbar -->
     <el-row type="flex" :gutter="10">
-      <el-col :span="18">
+      <el-col>
         <div>
           <el-input v-model="search" placeholder="Search"></el-input>
         </div>
       </el-col>
-      <el-col :span="4">
-        <show-if-has-role :roles="['ADMIN', 'MENTOR']">
-          <el-dropdown style="width: 100%" trigger="click" placement="bottom" @command="handleCommand">
-            <el-button round :disabled="selectedParts.length < 1" style="width: 100%">Actions<i class="el-icon-arrow-down el-icon--right"></i></el-button>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item command="delete">Delete Part(s)</el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
-        </show-if-has-role>
+      <el-col :span="4" v-permission="['ADMIN', 'MENTOR', 'INV_EDIT']">
+        <el-dropdown style="width: 100%" trigger="click" placement="bottom" @command="handleCommand">
+          <el-button round :disabled="selectedParts.length < 1" style="width: 100%">Actions<i class="el-icon-arrow-down el-icon--right"></i></el-button>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item command="delete">Delete Part(s)</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
       </el-col>
-      <el-col :span="2">
-        <show-if-has-role :roles="['ADMIN', 'MENTOR']">
-          <el-button style="width: 100%;" @click.end="$router.push('/inventory/parts/create')" type="primary" icon="el-icon-edit"></el-button>
-        </show-if-has-role>
+      <el-col :span="2" v-permission="['ADMIN', 'MENTOR', 'INV_EDIT']">
+        <el-button style="width: 100%;" @click="$router.push('/inventory/parts/create')" type="primary" icon="el-icon-edit"></el-button>
       </el-col>
     </el-row>
     <!-- Parts Table Start -->
     <el-table
+        border
         v-loading="partsLoading"
         :data="parts.content"
-        border
         style="width: 100%; margin-top: 20px;"
-        :cell-style="generateCellStyle"
+        :row-class-name="tableRowClassName"
         @selection-change="handleSelectionChange"
         @cell-click="onCellClick"
         empty-text="No Parts Found">
@@ -78,11 +74,19 @@
 </template>
 
 <script>
-import { InventoryService } from '../common/api.js';
-import ShowIfHasRole from './permissions/ShowIfHasRole';
+import { InventoryService } from '@/common/api.js';
+import { mapGetters } from 'vuex';
+import {
+  GET_PARTS,
+  SEARCH_PARTS
+} from '@/store/actions';
+import permission from '@/directive/permission';
 export default {
-  components: {
-    ShowIfHasRole
+  directives: {
+    permission
+  },
+  computed: {
+    ...mapGetters(['parts', 'loading'])
   },
   data() {
     return {
@@ -143,11 +147,11 @@ export default {
     onCellClick(row) {
       this.$router.push('/inventory/part/' + row.id);
     },
-    generateCellStyle(obj) {
+    tableRowClassName(obj) {
       if (obj.row.minQuantity >= obj.row.quantity) {
-        return "background-color: rgba(255, 0, 0, 0.25);"
+        return 'danger-row';
       } else {
-        return "";
+        return '';
       }
     }
   },
@@ -167,10 +171,13 @@ export default {
   },
   mounted() {
     this.refreshParts();
+    console.log(this);
   }
 }
 </script>
 
 <style>
-
+  .el-table .danger-row {
+    background: #ffb5b5;
+  }
 </style>

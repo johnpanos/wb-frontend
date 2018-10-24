@@ -8,10 +8,10 @@
           </div>
           <el-form ref="form" :model="form">
             <el-form-item label="Email">
-              <el-input v-model="form.email"></el-input>
+              <el-input v-model="form.email" @keyup.enter.native="login"></el-input>
             </el-form-item>
             <el-form-item label="Password">
-              <el-input v-model="form.password" type="password"></el-input>
+              <el-input v-model="form.password" @keyup.enter.native="login" type="password"></el-input>
             </el-form-item>
           </el-form>
           <p style="margin-bottom: 10px; color: red;">{{ error }}</p>
