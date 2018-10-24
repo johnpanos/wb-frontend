@@ -1,25 +1,18 @@
-import ApiService, { InventoryService } from '@/common/api';
-import {
-  GET_PARTS,
-  GET_PART,
-  SEARCH_PARTS,
-  DELETE_PARTS
-} from './actions';
-import {
-  SET_PARTS,
-  SET_PART
-} from './mutations';
+import { InventoryService } from '@/common/api';
 
 const PAGE_SIZE = 20;
 
 export default {
-  namespaced: true,
   state: {
-    currentPage: 0,
+    currentPage: 1,
     search: '',
     loading: false,
     part: null,
-    parts: null
+    parts: {
+      totalElements: 0,
+      size: 0,
+      content: []
+    }
   },
   getters: {
     currentPage(state) {
@@ -39,22 +32,51 @@ export default {
     }
   },
   mutations: {
-    [SET_PART](state, part) {
+    setPage(state, page) {
+      state.currentPage = page;
+    },
+    setPart(state, part) {
       state.part = part;
+    },
+    setParts(state, parts) {
+      state.parts = parts;
+    },
+    setSearch(state, search) {
+      if (search.length == 0) {
+        state.currentPage = 1;
+      }
+      state.search = search;
+    },
+    fetchStart(state) {
+      state.loading = true;
+    },
+    fetchEnd(state) {
+      state.loading = false;
     }
   },
   actions: {
-    [GET_PARTS]({ commit, state }) {
+    deleteParts({ commit, dispatch }, parts) {
+      commit('fetchStart');
+      InventoryService.deleteParts(parts).then(() => {
+        dispatch('getParts');
+        commit('fetchEnd');
+      });
+    },
+    getParts({ commit, state }) {
+      commit('fetchStart');
       InventoryService.searchParts(PAGE_SIZE, state.currentPage - 1, state.search)
         .then(response => {
-          commit(SET_PART, response.data);
+          commit('setParts', response.data);
+          commit('fetchEnd');
         })
         .catch(() => {
           console.log('ERROR: PartStore');
         });
     },
-    [SEARCH_PARTS]({ dispatch }, search) {
-      dispatch(GET_PARTS, search);
+    searchParts({ commit, dispatch }, search) {
+      console.log(search);
+      commit('setSearch', search);
+      dispatch('getParts');
     }
   }
 }

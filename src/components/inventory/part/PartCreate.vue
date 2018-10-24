@@ -43,7 +43,7 @@
     </el-form>
     <el-form v-if="step == 2" style="margin-top: 20px;" ref="form" label-width="120px">
         <el-form-item label="Location">
-          <el-select v-model="locationInfo.location" placeholder="Select">
+          <el-select v-model="locationInfo.location" value-key="id" placeholder="Select">
             <el-option
               v-for="location in locations"
               :key="location.id"

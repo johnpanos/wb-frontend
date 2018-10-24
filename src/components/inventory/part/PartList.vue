@@ -4,7 +4,7 @@
     <el-row type="flex" :gutter="10">
       <el-col>
         <div>
-          <el-input v-model="search" placeholder="Search"></el-input>
+          <el-input @change="refreshSearch" placeholder="Search"></el-input>
         </div>
       </el-col>
       <el-col :span="4" v-permission="['ADMIN', 'MENTOR', 'INV_EDIT']">
@@ -22,7 +22,7 @@
     <!-- Parts Table Start -->
     <el-table
         border
-        v-loading="partsLoading"
+        v-loading="loading"
         :data="parts.content"
         style="width: 100%; margin-top: 20px;"
         :row-class-name="tableRowClassName"
@@ -67,7 +67,7 @@
         layout="prev, pager, next"
         :total="parts.totalElements"
         :page-size="parts.size"
-        :current-page.sync="currentPage">
+        :current-page.sync="page">
       </el-pagination>
     </el-row>
   </el-container>
@@ -76,61 +76,40 @@
 <script>
 import { InventoryService } from '@/common/api.js';
 import { mapGetters } from 'vuex';
-import {
-  GET_PARTS,
-  SEARCH_PARTS
-} from '@/store/actions';
 import permission from '@/directive/permission';
 export default {
   directives: {
     permission
   },
   computed: {
-    ...mapGetters(['parts', 'loading'])
+    ...mapGetters(['search', 'parts', 'loading', 'currentPage']),
+    page: {
+      set(page) {
+        this.$store.commit('setPage', page);
+      },
+      get() {
+        return this.currentPage;
+      }
+    }
   },
   data() {
     return {
-      search: '',
-      parts: {
-        totalElements: 0,
-        size: 0,
-        content: []
-      },
-      quantityPart: {
-        name: '',
-        quantity: 0
-      },
-      quantityDialog: false,
-      newQuantity: 0,
-      currentPage: 1,
-      selectedParts: [],
-      partsLoading: true
+      selectedParts: []
     }
   },
   methods: {
     // If searching, then request the search endpoint,
     // however, if were just viewing, request the normal one
+    refreshSearch(search) {
+      this.$store.dispatch('searchParts', search);
+    },
     refreshParts() {
-      this.partsLoading = true;
-      if (this.search.length > 0) {
-        InventoryService.searchParts(20, this.currentPage - 1, this.search).then(response => {
-          this.parts = response.data;
-          this.partsLoading = false;
-        });
-      } else {
-        InventoryService.getParts(20, this.currentPage - 1).then(response => {
-          this.parts = response.data;
-          this.partsLoading = false;
-        });
-      }
+      this.$store.dispatch('getParts');
     },
     deleteParts() {
       this.$confirm('Are you sure you want to delete those parts?')
         .then(_ => {
-          this.partsLoading = true;
-          InventoryService.deleteParts(this.selectedParts).then(() => {
-            this.refreshParts();
-          });
+          this.$store.dispatch('deleteParts', this.selectedParts);
         })
         .catch(_ => {});
     },
@@ -156,22 +135,12 @@ export default {
     }
   },
   watch: {
-    // Watch the search, and if anything changes
-    // refresh the part list with the search
-    search() {
-      if (this.search.length == 0) {
-        this.currentPage = 1;
-      }
-      this.refreshParts();
-    },
-    // Whenever the current page changes, have the 
     currentPage() {
       this.refreshParts();
     }
   },
   mounted() {
     this.refreshParts();
-    console.log(this);
   }
 }
 </script>
