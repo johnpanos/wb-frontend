@@ -1,4 +1,5 @@
 import { InventoryService } from '@/common/api';
+//import router from '@/plugins/router';
 
 const PAGE_SIZE = 20;
 
@@ -62,7 +63,19 @@ export default {
         commit('fetchEnd');
       });
     },
-    getParts({ commit, state }) {
+    getPart({ commit, dispatch }, partId) {
+      commit('fetchStart');
+      InventoryService.getPartById(partId)
+        .then(response => {
+          commit('setPart', response.data);
+          commit('fetchEnd');
+        })
+        .catch(() => {
+          dispatch('messageError', '[PartStore] Part does not exist with id: ' + partId);
+          //router.push('/inventory');
+        });
+    },
+    getParts({ commit, dispatch, state }) {
       commit('fetchStart');
       InventoryService.searchParts(PAGE_SIZE, state.currentPage - 1, state.search)
         .then(response => {
@@ -70,8 +83,40 @@ export default {
           commit('fetchEnd');
         })
         .catch(() => {
-          console.log('ERROR: PartStore');
+          dispatch('messageError', '[PartStore] Could not search get response for query "' + state.search + '"');
         });
+    },
+    deleteVendorInfo(id) {
+      commit('fetchStart');
+      InventoryService.deletePartVendorInformation(id).then(() => {
+        commit('fetchEnd');
+      }).catch(() => {
+        dispatch('messageError', '[PartStore] An error occured deleting vendor info with id: ' + id);
+      });
+    },
+    updatePart({ commit, dispatch }, part) {
+      commit('fetchStart');
+      InventoryService.updatePartLocation(part.id, part.location.id).catch(() => {
+        dispatch('messageError', '[PartStore] An error occured updating the part with id: ' + part.id);
+      });
+      InventoryService.updatePart(part).then(() => {
+        part.vendorInformation.map(vendorInfo => {
+          if (vendorInfo.id != null) {
+            InventoryService.updatePartVendorInformation(vendorInfo.id, vendorInfo).then(() => {
+              dispatch('getPart', part.id);
+              commit('fetchEnd');
+            });
+          } else {
+            InventoryService.addVendorInformationToPart(this.currentPart.id, vendorInfo.partNumber, vendorInfo.vendor.id).then(() => {
+              dispatch('getPart', part.id);
+              commit('fetchEnd');
+            });
+          }
+        });
+      }).catch(() => {
+        dispatch('messageError', '[PartStore] An error occured updating the part with id: ' + part.id);
+        dispatch('getPart', part.id);
+      });
     },
     searchParts({ commit, dispatch }, search) {
       console.log(search);

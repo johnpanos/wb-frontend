@@ -59,7 +59,26 @@ export default {
   },
   computed: mapState({
     token: state => state.authentication.token,
+    notification: state => state.notification.notification,
+    message: state =>  state.notification.message
   }),
+  watch: {
+    notification(newValue, oldValue) {
+      this.$notify({
+        title: this.notification.title,
+        message: this.notification.message,
+        type: this.notification.type
+      });
+    },
+    message(newValue, oldValue) {
+      if (newValue != oldValue) {
+        this.$message({
+          message: this.message.message,
+          type: this.message.type
+        });
+      }
+    }
+  },
   methods: {
     logout() {
       this.$store.dispatch('authentication/logout');
@@ -67,7 +86,9 @@ export default {
     }
   },
   mounted() {
-    this.$store.dispatch('authentication/updateUser');
+    if (this.token != null) {
+      this.$store.dispatch('authentication/updateUser');
+    }
   }
 }
 </script>
