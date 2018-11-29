@@ -24,6 +24,7 @@
                   </el-submenu>
                 </show-if-has-role>
               <el-menu-item index="/inventory"><v-icon name="archive" />Inventory</el-menu-item>
+              <el-menu-item index="/purchase-orders"><v-icon name="parachute-box" />Purchase Orders</el-menu-item>
             </el-menu>
           </el-col>
         </el-row>

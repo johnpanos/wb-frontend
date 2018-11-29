@@ -3,6 +3,8 @@ import Vue from 'vue'
 // Import only icons we use to save the bundle size
 import 'vue-awesome/icons/archive';
 import 'vue-awesome/icons/users';
+import 'vue-awesome/icons/plus';
+import 'vue-awesome/icons/parachute-box';
 
 import Icon from 'vue-awesome/components/Icon';
 

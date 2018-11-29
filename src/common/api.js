@@ -3,8 +3,8 @@ import axios from 'axios'
 import VueAxios from 'vue-axios'
 import store from '../store'
 
-const baseURL = 'https://mywb.vcs.net'
-//const baseURL = 'http://localhost:8080';
+//const baseURL = 'https://mywb.vcs.net'
+const baseURL = 'http://localhost:8080';
 
 const ApiService = {
   init () {
@@ -214,5 +214,31 @@ export const InventoryService = {
   },
   deletePartVendorInformation(id) {
     return ApiService.delete('inventory/part/vendor-info/' + id);
+  },
+  getPartLowCount() {
+    return ApiService.get('inventory/part/lowCount/');
+  },
+  getPartCount() {
+    return ApiService.get('inventory/part/count/');
+  }
+}
+
+export const PurchaseOrderService = {
+  createPurchaseOrder(order) {
+    return ApiService.post('inventory/order/', order);
+  },
+  getPurchaseOrders(size, page) {
+    return ApiService.query('inventory/order/', {
+      params: {
+        size: size,
+        page: page
+      }
+    });
+  },
+  getPurchaseOrder(id) {
+    return ApiService.get('inventory/order/' + id);
+  },
+  getPurchaseOrderCount() {
+    return ApiService.get('inventory/order/count/');
   }
 }

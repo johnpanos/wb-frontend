@@ -88,7 +88,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="Team Status">
-        <el-checkbox v-model="user.student.inFLL" label="FFL"></el-checkbox>
+        <el-checkbox v-model="user.student.inFLL" label="FLL"></el-checkbox>
         <el-checkbox v-model="user.student.inFTC" label="FTC"></el-checkbox>
         <el-checkbox v-model="user.student.inFRC" label="FRC"></el-checkbox>
       </el-form-item>

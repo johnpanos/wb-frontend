@@ -3,8 +3,9 @@
     <el-row v-if="currentPart != null" type="flex" justify="space-between" align="middle">
       <h1 v-if="!loading">{{ currentPart.name }}</h1>
       <div v-permission="['ADMIN', 'MENTOR', 'INV_EDIT']">
-        <el-button v-if="!editing && !loading" @click="editing = true" type="primary">Edit</el-button>
-        <el-button v-if="editing" @click="onSave" type="primary">Save</el-button>
+        <el-button v-if="!editing && !loading" type="success" round @click="startPurchaseOrder">Purchase</el-button>
+        <el-button v-if="!editing && !loading" @click="editing = true" type="info">Edit</el-button>
+        <el-button v-if="editing" @click="onSave" type="success">Save</el-button>
         <el-button v-if="editing" @click="onCancel" type="danger">Cancel</el-button>
       </div>
     </el-row>
@@ -21,7 +22,7 @@
           </el-col>
           <el-col>
             <h3>QR Code</h3>
-             <div ref="qrCode"></div>
+            <qrcode :value="id" :options="{ size: 200 }"></qrcode>
           </el-col>
         </el-row>
         <el-row type="flex">
@@ -107,16 +108,6 @@ export default {
     }
   },
   watch: {
-    currentPart() {
-      setTimeout(() => {
-        new QArt({
-          size: 300,
-          value: this.currentPart.id.toString(),
-          imagePath: '/qrbase.png',
-          filter: 'color'
-        }).make(this.$refs.qrCode);
-      }, 10);
-    },
     partName(newValue) {
       console.log('part name')
       this.currentPart.name = newValue.toUpperCase().replace('”', '"');
@@ -172,6 +163,9 @@ export default {
       this.requestDeleteVendorInfoIds = [];
 
       this.$store.dispatch('updatePart', this.currentPart);
+    },
+    startPurchaseOrder() {
+      this.$router.push('/inventory/purchase/create?part=' + this.id);
     }
   }
 }

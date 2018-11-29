@@ -13,46 +13,78 @@ import Inventory from '@/components/inventory/Inventory.vue';
 import PartView from '@/components/inventory/part/PartView.vue';
 import PartCreate from '@/components/inventory/part/PartCreate.vue';
 import AuthenticationSuccessful from '@/components/AuthenticationSuccessful.vue';
+import CreatePurchaseOrder from '@/components/inventory/purchase/CreatePurchaseOrder.vue';
+import PurchaseOrderList from '@/components/purchase-orders/PurchaseOrderList.vue';
+import PurchaseOrderView from '@/components/purchase-orders/PurchaseOrderView.vue';
 
 Vue.use(VueRouter);
 
 const routes = [
-  { path: '/login', component: Login },
-  { path: '/hr/mentors', component: MentorList, meta: {
+  {
+    path: '/login', component: Login
+  },
+  {
+    path: '/hr/mentors', component: MentorList, meta: {
       allowedRoles: ['ADMIN', 'MENTOR']
     }
   },
-  { path: '/hr/mentors/create', component: MentorCreate, meta: {
+  {
+    path: '/hr/mentors/create', component: MentorCreate, meta: {
       allowedRoles: ['ADMIN', 'MENTOR']
     }
   },
-  { path: '/hr/mentors/update/:userId', component: MentorCreate, props: true, meta: {
+  {
+    path: '/hr/mentors/update/:userId', component: MentorCreate, props: true, meta: {
       allowedRoles: ['ADMIN', 'MENTOR']
     }
   },
-  { path: '/hr/students', component: StudentList, meta: {
+  {
+    path: '/hr/students', component: StudentList, meta: {
       allowedRoles: ['ADMIN', 'MENTOR']
     }
   },
-  { path: '/hr/students/create', component: StudentCreate, meta: {
+  {
+    path: '/hr/students/create', component: StudentCreate, meta: {
       allowedRoles: ['ADMIN', 'MENTOR']
     }
   },
-  { path: '/hr/students/permissions/:studentId', component: StudentPermission, props: true, meta: {
+  {
+    path: '/hr/students/permissions/:studentId', component: StudentPermission, props: true, meta: {
       allowedRoles: ['ADMIN', 'MENTOR']
     }
   },
-  { path: '/hr/students/update/:studentId', component: StudentCreate, props: true, meta: {
+  {
+    path: '/hr/students/update/:studentId', component: StudentCreate, props: true, meta: {
       allowedRoles: ['ADMIN', 'MENTOR']
     }
   },
-  { path: '/inventory', component: Inventory },
-  { path: '/inventory/parts/create', component: PartCreate, meta: {
+  {
+    path: '/inventory', component: Inventory
+  },
+  {
+    path: '/inventory/parts/create', component: PartCreate, meta: {
       allowedRoles: ['ADMIN', 'MENTOR', 'INV_EDIT']
     }
   },
-  { path: '/inventory/part/:partId', component: PartView, props: true },
-  { path: '/authentication-successful', component: AuthenticationSuccessful }
+  {
+    path: '/inventory/part/:partId', component: PartView, props: true
+  },
+  {
+    path: '/inventory/purchase/create', component: CreatePurchaseOrder, props: (route) => ({ partId: route.query.part })
+  },
+  {
+    path: '/purchase-orders', component: PurchaseOrderList, meta: {
+      allowedRoles: ['ADMIN', 'MENTOR', 'PO_VIEW', 'PO_EDIT']
+    }
+  },
+  {
+    path: '/purchase-orders/:orderId', component: PurchaseOrderView, meta: {
+      allowedRoles: ['ADMIN', 'MENTOR', 'PO_VIEW', 'PO_EDIT']
+    }
+  },
+  {
+    path: '/authentication-successful', component: AuthenticationSuccessful
+  },
 ];
 
 const router = new VueRouter({

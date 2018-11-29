@@ -101,13 +101,14 @@ export default {
       });
       InventoryService.updatePart(part).then(() => {
         part.vendorInformation.map(vendorInfo => {
+          console.log(vendorInfo);
           if (vendorInfo.id != null) {
             InventoryService.updatePartVendorInformation(vendorInfo.id, vendorInfo).then(() => {
               dispatch('getPart', part.id);
               commit('fetchEnd');
             });
           } else {
-            InventoryService.addVendorInformationToPart(this.currentPart.id, vendorInfo.partNumber, vendorInfo.vendor.id).then(() => {
+            InventoryService.addVendorInformationToPart(part.id, vendorInfo.partNumber, vendorInfo.vendor.id).then(() => {
               dispatch('getPart', part.id);
               commit('fetchEnd');
             });
