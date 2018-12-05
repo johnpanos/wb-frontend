@@ -70,7 +70,7 @@ const routes = [
     path: '/inventory/part/:partId', component: PartView, props: true
   },
   {
-    path: '/inventory/purchase/create', component: CreatePurchaseOrder, props: (route) => ({ partId: route.query.part })
+    path: '/purchase-orders/create', component: CreatePurchaseOrder, props: (route) => ({ partId: route.query.part })
   },
   {
     path: '/purchase-orders', component: PurchaseOrderList, meta: {
@@ -78,7 +78,7 @@ const routes = [
     }
   },
   {
-    path: '/purchase-orders/:orderId', component: PurchaseOrderView, meta: {
+    path: '/purchase-orders/:orderId', component: PurchaseOrderView, props: true, meta: {
       allowedRoles: ['ADMIN', 'MENTOR', 'PO_VIEW', 'PO_EDIT']
     }
   },

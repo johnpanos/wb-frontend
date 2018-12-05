@@ -5,7 +5,7 @@
         :data="purchaseOrders.content"
         border
         style="width: 100%; margin-top: 20px;"
-        empty-text="No Purchase Orders Places">
+        empty-text="No Purchase Orders Placed">
       <el-table-column
         sortable
         label="ASAP"
@@ -27,24 +27,20 @@
       </el-table-column>
       <el-table-column
         prop="partNumber"
-        label="Part Number"
-        width="160">
+        label="Part Number">
       </el-table-column>
       <el-table-column
-        label="Status"
-        width="160">
+        label="Status">
         <template slot-scope="scope">
           {{ scope.row.status.split('_').join(' ') }}
         </template>
       </el-table-column>
       <el-table-column
         prop="quantity"
-        label="Quantity Needed"
-        width="160">
+        label="Quantity Needed">
       </el-table-column>
       <el-table-column
-        label="Cost Per Item"
-        width="160">
+        label="Cost Per Item">
         <template slot-scope="scope">
           ${{ scope.row.costPerItem }}
         </template>
@@ -74,7 +70,7 @@
       <el-table-column
         label="Operations">
         <template slot-scope="scope">
-          <el-button type="text">View</el-button>
+          <el-button type="text" @click="onPurchaseOrderClick(scope.row.id)">View</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -103,6 +99,9 @@ export default {
       PurchaseOrderService.getPurchaseOrders(25, this.page - 1).then(response => {
         this.purchaseOrders = response.data;
       });
+    },
+    onPurchaseOrderClick(orderId) {
+      this.$router.push('/purchase-orders/' + orderId);
     }
   },
   mounted() {

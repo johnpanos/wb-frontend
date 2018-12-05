@@ -165,7 +165,7 @@ export default {
       this.$store.dispatch('updatePart', this.currentPart);
     },
     startPurchaseOrder() {
-      this.$router.push('/inventory/purchase/create?part=' + this.id);
+      this.$router.push('/purchase-orders/create?part=' + this.id);
     }
   }
 }

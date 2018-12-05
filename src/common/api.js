@@ -3,8 +3,8 @@ import axios from 'axios'
 import VueAxios from 'vue-axios'
 import store from '../store'
 
-//const baseURL = 'https://mywb.vcs.net'
-const baseURL = 'http://localhost:8080';
+const baseURL = 'https://mywb.vcs.net'
+//const baseURL = 'http://192.168.7.154:8080';
 
 const ApiService = {
   init () {
@@ -240,5 +240,21 @@ export const PurchaseOrderService = {
   },
   getPurchaseOrderCount() {
     return ApiService.get('inventory/order/count/');
+  },
+  updatePurchaseOrderStatus(id, status) {
+    console.log('status: ' + status);
+    return ApiService.put(`/inventory/order/${id}/status/`, { status: status });
+  },
+  deletePurchaseOrder(id) {
+    return ApiService.delete(`/inventory/order/${id}/`);
+  }
+}
+
+export const NotificationService = {
+  getNotifications() {
+    return ApiService.get('hr/notification/');
+  },
+  dismissNotification(id) {
+    return ApiService.get(`/hr/notification/${id}/dismiss/`);
   }
 }

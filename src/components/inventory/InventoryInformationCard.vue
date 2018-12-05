@@ -11,6 +11,7 @@
 </template>
 
 <script>
+import { ColorHelper } from '@/common/color.js';
 export default {
   name: 'inventory-information-card',
   props: ['label', 'type'],
@@ -20,21 +21,7 @@ export default {
     }
   },
   mounted() {
-    switch(this.type) {
-      default:
-      case "primary":
-        this.hexColor = "#409EFF";
-        break;
-      case "success":
-        this.hexColor = "#67C23A"
-        break;
-      case "warning":
-        this.hexColor = "#E6A23C";
-        break;
-      case "danger":
-        this.hexColor = "#F56C6C";
-        break;
-    }
+    this.hexColor = ColorHelper(this.type);
   }
 }
 </script>

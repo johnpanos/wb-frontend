@@ -11,6 +11,7 @@
 import { mapState } from 'vuex';
 export default {
   name: 'AuthenticationSuccessful',
+  // get user from authentication store
   computed: mapState({
     user: state => state.authentication.user,
   }),

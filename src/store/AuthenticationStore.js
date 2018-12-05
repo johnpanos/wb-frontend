@@ -21,16 +21,18 @@ export default {
       commit('updateToken', token);
       dispatch('updateUser');
     },
-    logout({ commit }) {
+    logout({ commit, dispatch }) {
       localStorage.setItem('token', null);
       localStorage.setItem('user', null);
       AuthService.logout();
       commit('updateToken', null);
+      dispatch('serverNotification/logout', null, { root: true });
     },
-    updateUser({ commit }) {
+    updateUser({ commit, dispatch }) {
       AuthService.getUserInfo().then(user => {
         localStorage.setItem('user', JSON.stringify(user.data));
         commit('updateUser', user.data);
+        dispatch('serverNotification/fetch', null, { root: true });
       });
     }
   }

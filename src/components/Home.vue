@@ -3,7 +3,23 @@
     <el-header style="display: flex; justify-content: space-between; align-items: center;">
       <h1>myWB</h1>
       <div v-if="token != null">
-        <el-button @click.end="passwordDialogVisible = true" type="text">Change Password</el-button>
+        <el-badge :value="unseenNotificationCount" v-bind:class="{ 'notification-badge': true, 'notification-badge-hide': unseenNotificationCount === 0 }">
+          <el-popover
+            placement="bottom"
+            width="300"
+            trigger="click">
+            <hr />
+            <div v-for="(notif, i) in notifications" v-bind:key="notif.id">
+              <p>{{ notif.title }} </p>
+              <p>{{ notif.description }}</p>
+              <el-button @click="onNotificationClick(notif.url)">Open</el-button>
+              <el-button @click="onNotificationDismiss(i)">Dismiss</el-button>
+              <hr />
+            </div>
+            <el-button slot="reference" circle><v-icon name="bell" /></el-button>
+          </el-popover>
+        </el-badge>
+        <!-- <el-button @click.end="passwordDialogVisible = true" type="text">Change Password</el-button> -->
         <el-button @click.end="logout" type="danger" round>Logout</el-button>
       </div>
     </el-header>
@@ -24,7 +40,9 @@
                   </el-submenu>
                 </show-if-has-role>
               <el-menu-item index="/inventory"><v-icon name="archive" />Inventory</el-menu-item>
-              <el-menu-item index="/purchase-orders"><v-icon name="parachute-box" />Purchase Orders</el-menu-item>
+              <show-if-has-role :roles="['ADMIN', 'MENTOR', 'PO_VIEW', 'PO_EDIT']">
+                <el-menu-item index="/purchase-orders"><v-icon name="parachute-box" />Purchase Orders</el-menu-item>
+              </show-if-has-role>
             </el-menu>
           </el-col>
         </el-row>
@@ -55,13 +73,15 @@ export default {
   },
   data() {
     return {
-      passwordDialogVisible: false
+      passwordDialogVisible: false,
+      unseenNotificationCount: 0
     }
   },
   computed: mapState({
     token: state => state.authentication.token,
     notification: state => state.notification.notification,
-    message: state =>  state.notification.message
+    message: state =>  state.notification.message,
+    notifications: state => state.serverNotification.notifications
   }),
   watch: {
     notification(newValue, oldValue) {
@@ -78,12 +98,22 @@ export default {
           type: this.message.type
         });
       }
+    },
+    notifications() {
+      this.unseenNotificationCount = this.notifications.filter(a => a.seen === false).length;
     }
   },
   methods: {
     logout() {
       this.$store.dispatch('authentication/logout');
+      this.$store.dispatch('serverNotification/logout');
       this.$router.push('/login');
+    },
+    onNotificationClick(url) {
+      window.location.href = url;
+    },
+    onNotificationDismiss(i) {
+      this.$store.dispatch('serverNotification/dismiss', i);
     }
   },
   mounted() {
@@ -95,6 +125,15 @@ export default {
 </script>
 
 <style>
+.notification-badge {
+  margin-right: 10px;
+}
+.notification-badge sup {
+  transform: translateY(-10%) translateX(80%) !important;
+}
+.notification-badge-hide sup {
+  display: none;
+}
 body > .el-container {
   margin-bottom: 0;
 }
@@ -108,7 +147,7 @@ body > .el-container {
 .fade-enter, .fade-leave-active {
   opacity: 0
 }
-.fa-icon {
+li svg {
   margin-right: 5px;
 }
 .el-submenu .el-menu-item {
