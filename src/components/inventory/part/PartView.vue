@@ -2,11 +2,11 @@
   <el-container direction="vertical" v-loading="loading">
     <el-row v-if="currentPart != null" type="flex" justify="space-between" align="middle">
       <h1 v-if="!loading">{{ currentPart.name }}</h1>
-      <div v-permission="['ADMIN', 'MENTOR', 'INV_EDIT']">
-        <el-button v-if="!editing && !loading" type="success" round @click="startPurchaseOrder">Purchase</el-button>
-        <el-button v-if="!editing && !loading" @click="editing = true" type="info">Edit</el-button>
-        <el-button v-if="editing" @click="onSave" type="success">Save</el-button>
-        <el-button v-if="editing" @click="onCancel" type="danger">Cancel</el-button>
+      <div>
+        <el-button v-permission="['ADMIN', 'MENTOR', 'PO_EDIT']" v-if="!editing && !loading" type="success" round @click="startPurchaseOrder">Request PO</el-button>
+        <el-button v-permission="['ADMIN', 'MENTOR', 'INV_EDIT']" v-if="!editing && !loading" @click="editing = true" type="info">Edit</el-button>
+        <el-button v-permission="['ADMIN', 'MENTOR', 'INV_EDIT']" v-if="editing" @click="onSave" type="success">Save</el-button>
+        <el-button v-permission="['ADMIN', 'MENTOR', 'INV_EDIT']" v-if="editing" @click="onCancel" type="danger">Cancel</el-button>
       </div>
     </el-row>
     <el-container direction="vertical">
@@ -32,7 +32,8 @@
           </el-col>
           <el-col>
             <h3>Quantity</h3>
-            <p>{{ currentPart.quantity }}</p>
+            <p v-if="!editing">{{ currentPart.quantity }}</p>
+            <el-input-number v-if="editing" v-model="currentPart.quantity" :min="0" :max="10000"></el-input-number>
           </el-col>
           <el-col>
             <h3>Minimum Quantity</h3>

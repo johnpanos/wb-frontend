@@ -2,7 +2,7 @@
   <el-container direction="vertical">
     <edit-vendor-modal :visible="editModalVisible" :vendor="selectedVendor" :onClose="onEditModalClose" />
     <el-row type="flex" :gutter="10" v-permission="['ADMIN', 'MENTOR', 'INV_EDIT']">
-      <el-col :offset="20" :span="4">
+      <el-col :offset="18" :span="4">
         <el-dropdown style="width: 100%" trigger="click" placement="bottom" @command="handleCommand">
           <el-button round :disabled="selectedVendors.length < 1" style="width: 100%">Actions<i class="el-icon-arrow-down el-icon--right"></i></el-button>
           <el-dropdown-menu slot="dropdown">

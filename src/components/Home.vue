@@ -47,7 +47,7 @@
           </el-col>
         </el-row>
       </el-aside>
-      <el-container>
+      <el-container class="main-container">
         <el-main>
           <transition name="fade">
             <router-view></router-view>

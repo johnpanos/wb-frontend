@@ -100,6 +100,7 @@ export default {
         dispatch('messageError', '[PartStore] An error occured updating the part with id: ' + part.id);
       });
       InventoryService.updatePart(part).then(() => {
+        InventoryService.updateQuantity(part, part.quantity);
         part.vendorInformation.map(vendorInfo => {
           console.log(vendorInfo);
           if (vendorInfo.id != null) {

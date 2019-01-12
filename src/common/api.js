@@ -3,8 +3,8 @@ import axios from 'axios'
 import VueAxios from 'vue-axios'
 import store from '../store'
 
-const baseURL = 'https://mywb.vcs.net'
-//const baseURL = 'http://192.168.7.154:8080';
+//const baseURL = 'https://mywb.vcs.net'
+const baseURL = 'http://192.168.7.154:8080';
 
 const ApiService = {
   init () {
@@ -206,6 +206,9 @@ export const InventoryService = {
   updatePart(part) {
     return ApiService.put(`inventory/part/${part.id}/`, part);
   },
+  updateQuantity(part, quantity) {
+    return ApiService.put(`inventory/part/${part.id}/update-quantity/?q=${quantity}`);
+  },
   updatePartLocation(partId, locationId) {
     return ApiService.put(`inventory/part/${partId}/${locationId}/`);
   },
@@ -216,7 +219,7 @@ export const InventoryService = {
     return ApiService.delete('inventory/part/vendor-info/' + id);
   },
   getPartLowCount() {
-    return ApiService.get('inventory/part/lowCount/');
+    return ApiService.get('inventory/part/low-count/');
   },
   getPartCount() {
     return ApiService.get('inventory/part/count/');
